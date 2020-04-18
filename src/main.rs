@@ -68,7 +68,7 @@ struct KeyVal<'a> {
     val: String,
 }
 
-enum DerivingError {
+enum PathSerializationError {
     KeyInvald(String),
     EntityNotFound(String),
     InvalidPath,
@@ -77,10 +77,9 @@ enum DerivingError {
 fn determine_entity<'a>(
     uri: &tide::http::Uri,
     entities: &'a Vec<Entity>,
-) -> Result<Path<'a>, DerivingError> {
+) -> Result<Path<'a>, PathSerializationError> {
     // /entity1(key1=1,key2=4)/entity2
     let path_segments_str: Vec<&str> = uri.path().split('/').skip(1).collect();
-    println!("path_segments_str {:?}", &path_segments_str);
 
     // [entity1(key1=1,key2=4), entity2]
     for path_segment in path_segments_str {
@@ -111,7 +110,7 @@ fn determine_entity<'a>(
                                 keys.push(key_val);
                             },
                             None => {
-                                return Err(DerivingError::KeyInvald(key_str.to_string()))
+                                return Err(PathSerializationError::KeyInvald(key_str.to_string()))
                             }
                         }
                     }
@@ -129,11 +128,11 @@ fn determine_entity<'a>(
                 }
             }
             None => {
-                return Err(DerivingError::EntityNotFound(entity_str.to_string()));
+                return Err(PathSerializationError::EntityNotFound(entity_str.to_string()));
             }
         }
     }
-    return Err(DerivingError::InvalidPath);
+    return Err(PathSerializationError::InvalidPath);
 }
 
 fn main() -> io::Result<()> {
@@ -200,16 +199,16 @@ fn main() -> io::Result<()> {
                 let option_entity = determine_entity(uri, req.state());
 
                 match option_entity {
-                    Err(DerivingError::InvalidPath) => {
+                    Err(PathSerializationError::InvalidPath) => {
                         return tide::Response::new(404)
                             .body_string("Your path is invalid".to_string());
                     }
-                    Err(DerivingError::EntityNotFound(entity)) => {
+                    Err(PathSerializationError::EntityNotFound(entity)) => {
                         return tide::Response::new(404).body_string(
                             format!("The entity {} is not found", entity).to_string(),
                         );
                     }
-                    Err(DerivingError::KeyInvald(key)) => {
+                    Err(PathSerializationError::KeyInvald(key)) => {
                         return tide::Response::new(404)
                             .body_string(format!("The key {} is invalid", key).to_string());
                     }
