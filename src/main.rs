@@ -3,11 +3,8 @@ use async_std::task;
 use std::vec::Vec;
 use tide::Server;
 
-mod entity;
 mod deserialize_path;
-// mod deserialize_path;
-
-
+mod entity;
 
 fn main() -> io::Result<()> {
     // TODO: Load from external csn file
@@ -74,9 +71,8 @@ fn main() -> io::Result<()> {
 
                 match option_entity {
                     Err(deserialize_path::PathSerializationError::EntityNotFound(entity)) => {
-                        return tide::Response::new(404).body_string(
-                            format!("The entity {} is not found", entity).to_string(),
-                        )
+                        return tide::Response::new(404)
+                            .body_string(format!("The entity {} is not found", entity).to_string())
                     }
                     Err(deserialize_path::PathSerializationError::KeyInvald(key)) => {
                         return tide::Response::new(404)
