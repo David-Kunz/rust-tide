@@ -1,6 +1,6 @@
-use crate::deserialize_path;
 use crate::entity;
 use tide::Server;
+mod deserialize_path;
 
 pub fn add_routes(app: &mut Server<Vec<entity::Entity>>) -> () {
     app.at("/")

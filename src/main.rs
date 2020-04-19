@@ -3,7 +3,6 @@ use async_std::task;
 use tide::Server;
 
 mod add_routes;
-mod deserialize_path;
 mod entity;
 mod get_entities;
 
