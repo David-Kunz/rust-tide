@@ -84,9 +84,11 @@ impl Definitions {
     pub fn from_str(csn: &str) -> Result<Definitions, DeserializationError> {
         let mut definitions = vec![];
         let csn_json: serde_json::value::Value = serde_json::from_str(csn)?;
-        let map = csn_json["definitions"].as_object().ok_or(DeserializationError {
-                    description: "Cannot find definitions".to_string(),
-                })?;
+        let map = csn_json["definitions"]
+            .as_object()
+            .ok_or(DeserializationError {
+                description: "Cannot find definitions".to_string(),
+            })?;
         for (key, val) in map {
             if val["kind"] == "service" {
                 definitions.push(Definition::Service(Service { name: key.clone() }));
@@ -223,15 +225,15 @@ mod tests {
     fn test_get_csn() {
         let csn = get_test_csn();
         assert_eq!(Definitions::from_str(csn).is_ok(), true);
-     }
+    }
 
     #[test]
     fn test_get_csn_no_definitions() {
         let csn = get_test_csn_no_definitions();
         let res = Definitions::from_str(csn);
         match res {
-          Ok(_) => assert_eq!(1,0),
-          Err(e) => assert_eq!(e.description,"Cannot find definitions")
+            Ok(_) => assert_eq!(1, 0),
+            Err(e) => assert_eq!(e.description, "Cannot find definitions"),
         }
     }
 
@@ -240,8 +242,8 @@ mod tests {
         let csn = get_test_csn_no_elements();
         let res = Definitions::from_str(csn);
         match res {
-          Ok(_) => assert_eq!(1,0),
-          Err(e) => assert_eq!(e.description,"Cannot find elements")
+            Ok(_) => assert_eq!(1, 0),
+            Err(e) => assert_eq!(e.description, "Cannot find elements"),
         }
     }
 
@@ -250,8 +252,8 @@ mod tests {
         let csn = get_test_csn_invalid_json();
         let res = Definitions::from_str(csn);
         match res {
-          Ok(_) => assert_eq!(1,0),
-          Err(e) => assert_eq!(e.description,"invalid number at line 1 column 11")
+            Ok(_) => assert_eq!(1, 0),
+            Err(e) => assert_eq!(e.description, "invalid number at line 1 column 11"),
         }
     }
 }
