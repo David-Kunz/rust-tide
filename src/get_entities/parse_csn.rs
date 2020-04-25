@@ -173,9 +173,7 @@ mod tests {
     #[test]
     fn test_get_csn() {
         let csn = get_test_csn();
-        let definitions = Definitions::from_str(csn);
-        println!("Found definitions");
-        println!("{:?}", definitions);
+        Definitions::from_str(csn);
         assert_eq!(1, 1);
     }
 }
