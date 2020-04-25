@@ -107,7 +107,7 @@ fn get_path<'a>(
 }
 
 pub fn deserialize_path<'a>(
-    uri: &'a tide::http::Uri,
+    uri: &'a tide::http::Url,
     entities: &'a Vec<entity::Entity>,
 ) -> Result<Path<'a>, PathSerializationError> {
     // /entity1(key1=1,key2=4)/entity2

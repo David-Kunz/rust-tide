@@ -13,6 +13,18 @@ pub struct Element {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
+#[serde(tag = "kind")]
+pub enum Definition {
+    Service(Service),
+    Entity(Entity),
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Service {
+    Kind: String,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
 pub enum ElementType {
     UUID,
     Boolean,

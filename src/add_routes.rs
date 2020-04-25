@@ -1,11 +1,12 @@
 use crate::entity;
-use tide::Server;
+use tide::{Server, StatusCode};
 mod deserialize_path;
 
 pub fn add_routes(app: &mut Server<Vec<entity::Entity>>) -> () {
     app.at("/")
         .get(|_req: tide::Request<Vec<entity::Entity>>| async move {
-            tide::Response::new(200).body_string("Please use proper routes.".to_string())
+            Ok(tide::Response::new(StatusCode::Ok)
+                .body_string("Please use proper routes.".to_string()))
         });
 
     app.at("*")
@@ -16,14 +17,16 @@ pub fn add_routes(app: &mut Server<Vec<entity::Entity>>) -> () {
 
             match option_entity {
                 Err(deserialize_path::PathSerializationError::EntityNotFound(entity)) => {
-                    return tide::Response::new(404)
-                        .body_string(format!("The entity {} is not found", entity).to_string())
+                    Ok(tide::Response::new(StatusCode::NotFound)
+                        .body_string(format!("The entity {} is not found", entity).to_string()))
                 }
                 Err(deserialize_path::PathSerializationError::KeyInvald(key)) => {
-                    return tide::Response::new(404)
-                        .body_string(format!("The key {} is invalid", key).to_string());
+                    Ok(tide::Response::new(StatusCode::NotFound)
+                        .body_string(format!("The key {} is invalid", key).to_string()))
                 }
-                Ok(path) => tide::Response::new(200).body_json(&path).unwrap(),
+                Ok(path) => Ok(tide::Response::new(StatusCode::Ok)
+                    .body_json(&path)
+                    .unwrap()),
             }
         });
 }
