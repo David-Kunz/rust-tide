@@ -150,6 +150,29 @@ mod tests {
           "$version": "1.0"}"#
     }
 
+    fn get_test_csn_no_elements() -> &'static str {
+        r#"{"definitions": {
+            "TestService": {
+              "@source": "srv/service.cds",
+              "kind": "service"
+            },
+            "TestService.TestEntity": {
+              "kind": "entity"
+            }
+          },
+          "meta": {
+            "creator": "CDS Compiler v1.25.0"
+          },
+          "$version": "1.0"}"#
+    }
+
+    fn get_test_csn_no_definitions() -> &'static str {
+        r#"{"meta": {
+            "creator": "CDS Compiler v1.25.0"
+          },
+          "$version": "1.0"}"#
+    }
+
     #[test]
     fn deserialize_uuid() {
         let input_str = r#"{"type": "cds.UUID", "key": true}"#;
@@ -192,7 +215,26 @@ mod tests {
     #[test]
     fn test_get_csn() {
         let csn = get_test_csn();
-        Definitions::from_str(csn).is_ok();
-        assert_eq!(1, 1);
+        assert_eq!(Definitions::from_str(csn).is_ok(), true);
+     }
+
+    #[test]
+    fn test_get_csn_no_definitions() {
+        let csn = get_test_csn_no_definitions();
+        let res = Definitions::from_str(csn);
+        match res {
+          Ok(_) => assert_eq!(1,0),
+          Err(e) => assert_eq!(e.description,"Cannot find definitions")
+        }
+    }
+
+    #[test]
+    fn test_get_csn_no_elements() {
+        let csn = get_test_csn_no_elements();
+        let res = Definitions::from_str(csn);
+        match res {
+          Ok(_) => assert_eq!(1,0),
+          Err(e) => assert_eq!(e.description,"Cannot find elements")
+        }
     }
 }
