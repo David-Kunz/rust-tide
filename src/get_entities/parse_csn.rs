@@ -1,6 +1,5 @@
 // use crate::entity;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 
 #[derive(Deserialize, Serialize, Debug)]
 struct Service {
@@ -14,44 +13,10 @@ struct Entity {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-struct PrimitiveElementKind<T> {
-    #[serde(default = "make_false")]
-    key: bool,
-    default: Option<Default<T>>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-enum Default<T> {
-    // TODO: other possibilities
-    #[serde(rename = "val")]
-    Val(T),
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-struct StringElementKind {
-    #[serde(default = "make_false")]
-    key: bool,
-    // TODO: Better default value
-    length: Option<u16>,
-    default: Option<Default<String>>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
 struct Element {
     name: String,
     key: bool,
     kind: ElementKind,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-struct PrimitiveKind<T> {
-    default: Option<Default<T>>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-struct PrimitiveKindString {
-    default: Option<Default<String>>,
-    length: Option<u64>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -67,8 +32,22 @@ enum ElementKind {
     String(PrimitiveKindString),
 }
 
-fn make_false() -> bool {
-    false
+#[derive(Deserialize, Serialize, Debug)]
+struct PrimitiveKind<T> {
+    default: Option<Default<T>>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+struct PrimitiveKindString {
+    default: Option<Default<String>>,
+    length: Option<u64>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+enum Default<T> {
+    // TODO: other possibilities
+    #[serde(rename = "val")]
+    Val(T),
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -82,6 +61,7 @@ enum Definition {
 mod tests {
 
     use super::*;
+    use serde_json::json;
 
     fn get_test_csn_json() -> serde_json::value::Value {
         json!({
