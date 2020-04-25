@@ -173,6 +173,13 @@ mod tests {
           "$version": "1.0"}"#
     }
 
+    fn get_test_csn_invalid_json() -> &'static str {
+        r#"{"meta": -invalid-
+            "creator": "CDS Compiler v1.25.0"
+          },
+          "$version": "1.0"}"#
+    }
+
     #[test]
     fn deserialize_uuid() {
         let input_str = r#"{"type": "cds.UUID", "key": true}"#;
@@ -235,6 +242,16 @@ mod tests {
         match res {
           Ok(_) => assert_eq!(1,0),
           Err(e) => assert_eq!(e.description,"Cannot find elements")
+        }
+    }
+
+    #[test]
+    fn test_get_csn_invalid_json() {
+        let csn = get_test_csn_invalid_json();
+        let res = Definitions::from_str(csn);
+        match res {
+          Ok(_) => assert_eq!(1,0),
+          Err(e) => assert_eq!(e.description,"invalid number at line 1 column 11")
         }
     }
 }
