@@ -68,14 +68,11 @@ impl Definitions {
         let csn_json: serde_json::value::Value = serde_json::from_str(csn).unwrap();
         let map = csn_json["definitions"].as_object().unwrap();
         for (key, val) in map {
-            println!("{}", key);
             if val["kind"] == "service" {
-                println!("found service");
                 definitions.push(Definition::Service(Service { name: key.clone() }));
             } else if val["kind"] == "entity" {
                 let mut elements: Vec<Element> = vec![];
                 for (el_key, el_val) in val["elements"].as_object().unwrap() {
-                    println!("found el_val {}", el_val);
                     let el_val_str = &el_val.to_string();
                     let element_kind: ElementKind = serde_json::from_str(el_val_str).unwrap();
                     let element = Element {
