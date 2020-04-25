@@ -62,19 +62,41 @@ pub enum Definition {
     Entity(Entity),
 }
 
+pub struct DeserializationError {
+    description: String,
+}
+
+impl DeserializationError {
+    pub fn new(description: &str) -> DeserializationError {
+        DeserializationError {
+            description: description.to_string(),
+        }
+    }
+}
+
+impl From<serde_json::error::Error> for DeserializationError {
+    fn from(err: serde_json::error::Error) -> DeserializationError {
+        DeserializationError::new(&err.to_string())
+    }
+}
+
 impl Definitions {
-    pub fn from_str(csn: &str) -> Definitions {
+    pub fn from_str(csn: &str) -> Result<Definitions, DeserializationError> {
         let mut definitions = vec![];
-        let csn_json: serde_json::value::Value = serde_json::from_str(csn).unwrap();
-        let map = csn_json["definitions"].as_object().unwrap();
+        let csn_json: serde_json::value::Value = serde_json::from_str(csn)?;
+        let map = csn_json["definitions"].as_object().ok_or(DeserializationError {
+                    description: "Cannot find definitions".to_string(),
+                })?;
         for (key, val) in map {
             if val["kind"] == "service" {
                 definitions.push(Definition::Service(Service { name: key.clone() }));
             } else if val["kind"] == "entity" {
                 let mut elements: Vec<Element> = vec![];
-                for (el_key, el_val) in val["elements"].as_object().unwrap() {
+                for (el_key, el_val) in val["elements"].as_object().ok_or(DeserializationError {
+                    description: "Cannot find elements".to_string(),
+                })? {
                     let el_val_str = &el_val.to_string();
-                    let element_kind: ElementKind = serde_json::from_str(el_val_str).unwrap();
+                    let element_kind: ElementKind = serde_json::from_str(el_val_str)?;
                     let element = Element {
                         name: el_key.to_string(),
                         key: el_val["key"] == true,
@@ -88,7 +110,7 @@ impl Definitions {
                 }))
             }
         }
-        Definitions { definitions }
+        Ok(Definitions { definitions })
     }
 }
 
@@ -170,7 +192,7 @@ mod tests {
     #[test]
     fn test_get_csn() {
         let csn = get_test_csn();
-        Definitions::from_str(csn);
+        Definitions::from_str(csn).is_ok();
         assert_eq!(1, 1);
     }
 }
