@@ -149,15 +149,13 @@ mod tests {
                 let mut elements: Vec<Element> = vec![];
                 for (el_key, el_val) in val["elements"].as_object().unwrap() {
                     println!("found el_val {}", el_val);
-                    // el_val["name"] = serde_json::value::Value::String(el_key.to_string());
                     let el_val_str = &el_val.to_string();
                     let element_kind: ElementKind = serde_json::from_str(el_val_str).unwrap();
                     let element = Element {
                         name: el_key.to_string(),
-                        key: el_val["key"] == "true",
+                        key: el_val["key"] == true,
                         kind: element_kind,
                     };
-                    // element.name = el_key.to_string();
                     elements.push(element);
                 }
                 definitions.push(Definition::Entity(Entity {
