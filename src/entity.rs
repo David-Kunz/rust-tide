@@ -21,7 +21,7 @@ pub enum Definition {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Service {
-    Kind: String,
+    kind: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
