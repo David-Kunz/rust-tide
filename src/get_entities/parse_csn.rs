@@ -2,6 +2,11 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug)]
+pub struct Definitions {
+    definitions: Vec<Definition>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Service {
     name: String,
 }
@@ -57,35 +62,37 @@ pub enum Definition {
     Entity(Entity),
 }
 
-pub fn get_definitions(csn: &str) -> Vec<Definition> {
-    let mut definitions = vec![];
-    let csn_json: serde_json::value::Value = serde_json::from_str(csn).unwrap();
-    let map = csn_json["definitions"].as_object().unwrap();
-    for (key, val) in map {
-        println!("{}", key);
-        if val["kind"] == "service" {
-            println!("found service");
-            definitions.push(Definition::Service(Service { name: key.clone() }));
-        } else if val["kind"] == "entity" {
-            let mut elements: Vec<Element> = vec![];
-            for (el_key, el_val) in val["elements"].as_object().unwrap() {
-                println!("found el_val {}", el_val);
-                let el_val_str = &el_val.to_string();
-                let element_kind: ElementKind = serde_json::from_str(el_val_str).unwrap();
-                let element = Element {
-                    name: el_key.to_string(),
-                    key: el_val["key"] == true,
-                    kind: element_kind,
-                };
-                elements.push(element);
+impl Definitions {
+    pub fn from_str(csn: &str) -> Definitions {
+        let mut definitions = vec![];
+        let csn_json: serde_json::value::Value = serde_json::from_str(csn).unwrap();
+        let map = csn_json["definitions"].as_object().unwrap();
+        for (key, val) in map {
+            println!("{}", key);
+            if val["kind"] == "service" {
+                println!("found service");
+                definitions.push(Definition::Service(Service { name: key.clone() }));
+            } else if val["kind"] == "entity" {
+                let mut elements: Vec<Element> = vec![];
+                for (el_key, el_val) in val["elements"].as_object().unwrap() {
+                    println!("found el_val {}", el_val);
+                    let el_val_str = &el_val.to_string();
+                    let element_kind: ElementKind = serde_json::from_str(el_val_str).unwrap();
+                    let element = Element {
+                        name: el_key.to_string(),
+                        key: el_val["key"] == true,
+                        kind: element_kind,
+                    };
+                    elements.push(element);
+                }
+                definitions.push(Definition::Entity(Entity {
+                    name: key.clone(),
+                    elements: elements,
+                }))
             }
-            definitions.push(Definition::Entity(Entity {
-                name: key.clone(),
-                elements: elements,
-            }))
         }
+        Definitions { definitions }
     }
-    definitions
 }
 
 #[cfg(test)]
@@ -166,7 +173,7 @@ mod tests {
     #[test]
     fn test_get_csn() {
         let csn = get_test_csn();
-        let definitions = get_definitions(csn);
+        let definitions = Definitions::from_str(csn);
         println!("Found definitions");
         println!("{:?}", definitions);
         assert_eq!(1, 1);
