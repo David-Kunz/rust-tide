@@ -1,0 +1,8 @@
+POST http://localhost:4004/my/MySEntity
+Content-Type: application/json
+
+{
+    "ID": "f3943c14-7440-4f2f-bfb0-1aa93f7accbd",
+    "name": "First Entity",
+    "age": 9
+}

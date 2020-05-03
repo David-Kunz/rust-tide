@@ -4,23 +4,23 @@ use serde::Serialize;
 // use entity;
 
 #[derive(Serialize)]
-pub struct Path<'a>(PathElement<'a>);
+pub struct Path<'a>(pub PathElement<'a>);
 
 #[derive(Serialize)]
-enum PathElement<'a> {
+pub enum PathElement<'a> {
     EntityWithoutKeys(EntityWithoutKeys<'a>),
     EntityWithKeys(EntityWithKeys<'a>),
 }
 
 #[derive(Serialize)]
-struct EntityWithoutKeys<'a> {
-    entity: &'a entity::Entity,
+pub struct EntityWithoutKeys<'a> {
+    pub entity: &'a entity::Entity,
 }
 
 #[derive(Serialize)]
-struct EntityWithKeys<'a> {
-    entity: &'a entity::Entity,
-    keys: Vec<KeyVal<'a>>,
+pub struct EntityWithKeys<'a> {
+    pub entity: &'a entity::Entity,
+    pub keys: Vec<KeyVal<'a>>,
     // nav: Option<Navigation>,
 }
 
@@ -30,9 +30,9 @@ struct EntityWithKeys<'a> {
 // }
 
 #[derive(Serialize)]
-struct KeyVal<'a> {
-    key: &'a entity::Element,
-    val: String,
+pub struct KeyVal<'a> {
+    pub key: &'a entity::Element,
+    pub val: String,
 }
 pub enum PathSerializationError {
     KeyInvald(String),

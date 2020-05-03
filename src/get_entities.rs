@@ -1,5 +1,5 @@
 use crate::entity;
-mod parse_csn;
+use crate::parse_csn;
 
 pub fn get_entities() -> Vec<entity::Entity> {
     let entities = vec![
