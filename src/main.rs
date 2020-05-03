@@ -19,7 +19,6 @@ pub struct State {
 
 fn main() -> io::Result<()> {
     task::block_on(async {
-        // let entities = get_entities::get_entities();
         let csn = read_to_string("csn.json").await?;
         let definitions = parse_csn::Definitions::from_str(&csn).expect("Cannot parse csn");
         let pool = SqlitePool::new(&env::var("DATABASE_URL").unwrap()).await.unwrap();
