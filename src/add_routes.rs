@@ -30,11 +30,9 @@ pub fn add_routes(app: &mut Server<State>) -> () {
         match url_to_cqn::parse(method, uri) {
             Ok(cqn) => match cqn {
                 cqn::CQN::SELECT(select) => {
-                    println!("found cqn {:?}", &select.to_sql());
                     let res = sqlx::query_as::<_, MyEntity>(&select.to_sql())
                         .fetch_all(&state.pool)
                         .await?;
-                    println!("found: {:?}", res);
                     return Ok(tide::Response::new(StatusCode::Ok).body_json(&res).unwrap());
                 }
             },
