@@ -6,6 +6,7 @@ use serde::Serialize;
 use sqlx::sqlite::SqliteQueryAs;
 use tide::{Server, StatusCode};
 
+// TODO: Should be generated from CSN
 #[derive(sqlx::FromRow, Debug, Serialize)]
 struct MyEntity {
     ID: String,
