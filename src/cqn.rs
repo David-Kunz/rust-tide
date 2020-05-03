@@ -25,7 +25,10 @@ impl SELECT {
 
     pub fn filter(&mut self, filter: Vec<&str>) -> &mut Self {
         let filter: Vec<String> = filter.iter().map(|col| col.to_string()).collect();
-        if filter[0] != "and" && !self.filter.is_empty() && self.filter.last() != Some(&"and".to_string()) {
+        if filter[0] != "and"
+            && !self.filter.is_empty()
+            && self.filter.last() != Some(&"and".to_string())
+        {
             self.filter.push("and".to_string());
         }
         self.filter.extend(filter);
