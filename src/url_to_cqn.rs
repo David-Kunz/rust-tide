@@ -22,20 +22,20 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
 
     let path_wo_leading_slash: &str = &path[1..];
 
-    let rootSegment: &str = match path_wo_leading_slash.find("/") {
+    let root_segment: &str = match path_wo_leading_slash.find("/") {
         None => &path_wo_leading_slash,
         Some(idx) => &path_wo_leading_slash[..idx],
     };
 
-    let parsed: Parsed = match rootSegment.find("(") {
-        Some(startIdx) => {
+    let parsed: Parsed = match root_segment.find("(") {
+        Some(start_idx) => {
             let mut parsed = Parsed {
-                entity: rootSegment[..startIdx].to_string(),
+                entity: root_segment[..start_idx].to_string(),
                 key_vals: vec![],
             };
-            match rootSegment.find(")") {
-                Some(endIdx) => {
-                    let key_vals = rootSegment[startIdx + 1..endIdx].split(",");
+            match root_segment.find(")") {
+                Some(end_idx) => {
+                    let key_vals = root_segment[start_idx + 1..end_idx].split(",");
                     for key_val in key_vals {
                         let keyval: Vec<&str> = key_val.split("=").collect();
                         parsed.key_vals.push(KeyVal {
@@ -49,7 +49,7 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
             }
         }
         None => Parsed {
-            entity: rootSegment.to_string(),
+            entity: root_segment.to_string(),
             key_vals: vec![],
         },
     };
