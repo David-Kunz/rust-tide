@@ -1,0 +1,52 @@
+{
+  "definitions": {
+    "MyEntity": {
+      "kind": "entity",
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "name": {
+          "type": "cds.String"
+        },
+        "age": {
+          "type": "cds.Integer"
+        }
+      }
+    },
+    "MyService": {
+      "@source": "srv/service.cds",
+      "kind": "service"
+    },
+    "MyService.MySEntity": {
+      "kind": "entity",
+      "query": {
+        "SELECT": {
+          "from": {
+            "ref": [
+              "MyEntity"
+            ]
+          }
+        }
+      },
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "name": {
+          "type": "cds.String"
+        },
+        "age": {
+          "type": "cds.Integer"
+        }
+      },
+      "$syntax": "projection"
+    }
+  },
+  "meta": {
+    "creator": "CDS Compiler v1.26.2"
+  },
+  "$version": "1.0"
+}

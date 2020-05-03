@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Definitions {
@@ -61,6 +62,7 @@ pub enum Definition {
     Entity(Entity),
 }
 
+#[derive(Debug)]
 pub struct DeserializationError {
     description: String,
 }
