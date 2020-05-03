@@ -17,25 +17,16 @@ pub enum UriError {
     NotImplemented,
 }
 
-pub fn parse(method: tide::http::Method, uri: &tide::http::Url) -> Result<CQN, UriError> {
-    // let re = Regex::new(r"(\d{4})-(\d{2})-(\d{2})").unwrap();
-    // let path_segments_str: Vec<&str> = uri.path().split('/').skip(1).collect();
-    if method != tide::http::Method::Get {
-        return Err(UriError::NotImplemented);
-    }
+fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
     let path = uri.path();
 
     let path_wo_leading_slash: &str = &path[1..];
 
     let rootSegment: &str = match path_wo_leading_slash.find("/") {
         None => &path_wo_leading_slash,
-        Some(idx) => {
-            &path_wo_leading_slash[..idx]
-        }
+        Some(idx) => &path_wo_leading_slash[..idx],
     };
 
-    println!(">>>>>\n");
-    println!("rootSegment: {}", rootSegment);
     let parsed: Parsed = match rootSegment.find("(") {
         Some(startIdx) => {
             let mut parsed = Parsed {
@@ -53,8 +44,8 @@ pub fn parse(method: tide::http::Method, uri: &tide::http::Url) -> Result<CQN, U
                         });
                     }
                     parsed
-                },
-                None => return Err(UriError::InvalidURI)
+                }
+                None => return Err(UriError::InvalidURI),
             }
         }
         None => Parsed {
@@ -69,5 +60,12 @@ pub fn parse(method: tide::http::Method, uri: &tide::http::Url) -> Result<CQN, U
     }
     // println!("cqn: {:?}", cqn);
     // println!("sql: {:?}", cqn.to_sql());
-    Ok(cqn::CQN::SELECT(select))
+    Ok(select)
+}
+
+pub fn parse(method: tide::http::Method, uri: &tide::http::Url) -> Result<CQN, UriError> {
+    match method {
+        tide::http::Method::Get => Ok(cqn::CQN::SELECT(get(uri)?)),
+        _ => Err(UriError::NotImplemented),
+    }
 }
