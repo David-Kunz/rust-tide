@@ -53,13 +53,10 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
             key_vals: vec![],
         },
     };
-    // println!("arguments: {:?}", arguments);
     let mut select = cqn::SELECT::from(&parsed.entity);
     for key_val in parsed.key_vals {
         select.filter(vec![&key_val.key, "=", &key_val.val]);
     }
-    // println!("cqn: {:?}", cqn);
-    // println!("sql: {:?}", cqn.to_sql());
     Ok(select)
 }
 
