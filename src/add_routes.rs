@@ -24,7 +24,6 @@ pub fn add_routes(app: &mut Server<State>) -> () {
     app.at("*").get(|req: tide::Request<State>| async move {
         let uri = req.uri();
         let method = req.method();
-
         let state = req.state();
 
         match url_to_cqn::parse(method, uri) {
