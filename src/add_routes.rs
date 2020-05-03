@@ -13,9 +13,6 @@ struct MyEntity {
     age: i64,
 }
 
-// #[derive(sqlx::FromRow)]
-// struct Todo { id: i64, desscription: String, done: bool }
-
 pub fn add_routes(app: &mut Server<State>) -> () {
     app.at("/").get(|_req: tide::Request<State>| async move {
         Ok(
