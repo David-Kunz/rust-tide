@@ -8,7 +8,6 @@ use std::env;
 
 mod add_routes;
 mod entity;
-mod get_entities;
 mod parse_csn;
 mod cqn;
 mod url_to_cqn;
