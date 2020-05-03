@@ -25,13 +25,14 @@ impl SELECT {
 
     pub fn filter(&mut self, filter: Vec<&str>) -> &mut Self {
         let filter: Vec<String> = filter.iter().map(|col| col.to_string()).collect();
-        if filter[0] != "and"
-            && !self.filter.is_empty()
-            && self.filter.last() != Some(&"and".to_string())
-        {
+        if !self.filter.is_empty() && self.filter.last() != Some(&"and".to_string()) {
+            self.filter.insert(0, "(".to_string());
+            self.filter.push(")".to_string());
             self.filter.push("and".to_string());
+            self.filter.extend(filter);
+        } else {
+            self.filter.extend(filter);
         }
-        self.filter.extend(filter);
         self
     }
 }
@@ -76,9 +77,10 @@ mod tests {
         select.filter(vec![
             "(", "a", ">", "2", "and", "b", "<", "9", ")", "or", "c", "<", "4",
         ]);
+        select.filter(vec!["d", "=", "9"]);
         assert_eq!(
             select.to_sql(),
-            "SELECT * FROM example_entity WHERE ( a > 2 and b < 9 ) or c < 4"
+            "SELECT * FROM example_entity WHERE ( ( a > 2 and b < 9 ) or c < 4 ) and d = 9"
         )
     }
 }

@@ -8,8 +8,8 @@ use std::env;
 
 mod add_routes;
 mod cqn;
-mod entity;
 mod csn;
+mod entity;
 mod url_to_cqn;
 
 pub struct State {
