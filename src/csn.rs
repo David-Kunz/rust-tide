@@ -3,25 +3,38 @@ use std::fmt::Debug;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Definitions {
-    definitions: Vec<Definition>,
+    pub definitions: Vec<Definition>,
+}
+
+impl Definitions {
+    pub fn get_service_names(&self) -> Vec<String> {
+        let mut res = vec![];
+        for def in &self.definitions {
+            match def {
+                Definition::Service(srv) => res.push(srv.name.to_string()),
+                _ => {}
+            }
+        }
+        res
+    }
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Service {
-    name: String,
+    pub name: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Entity {
-    name: String,
-    elements: Vec<Element>,
+    pub name: String,
+    pub elements: Vec<Element>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Element {
-    name: String,
-    key: bool,
-    kind: ElementKind,
+    pub name: String,
+    pub key: bool,
+    pub kind: ElementKind,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -39,13 +52,13 @@ pub enum ElementKind {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct PrimitiveKind<T> {
-    default: Option<Default<T>>,
+    pub default: Option<Default<T>>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct PrimitiveKindString {
-    default: Option<Default<String>>,
-    length: Option<u64>,
+    pub default: Option<Default<String>>,
+    pub length: Option<u64>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -64,7 +77,7 @@ pub enum Definition {
 
 #[derive(Debug)]
 pub struct DeserializationError {
-    description: String,
+    pub description: String,
 }
 
 impl DeserializationError {
