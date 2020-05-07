@@ -24,11 +24,9 @@ pub fn add_routes(app: &mut Server<State>, service_names: Vec<String>) -> () {
 
     for service_name in service_names {
         let endpoint = format!("{}{}", service_name, "/*");
-        println!("endpoint {}", endpoint);
         app.at(&endpoint)
             .get(|req: tide::Request<State>| async move {
                 let uri = req.uri();
-                println!("uri: {}", uri);
                 let method = req.method();
                 let state = req.state();
 

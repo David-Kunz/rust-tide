@@ -25,7 +25,6 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
     let service_name = path_segments[1];
     let entity_segment = path_segments[2];
 
-    println!("root segment: {}", entity_segment);
     let parsed: Parsed = match entity_segment.find("(") {
         Some(start_idx) => {
             let mut parsed = Parsed {
