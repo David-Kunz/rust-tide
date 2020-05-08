@@ -19,6 +19,8 @@ pub enum UriError {
 
 fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
     let path = uri.path();
+    let query = uri.query();
+
 
     let path_segments: Vec<&str> = path.split('/').collect();
 
@@ -55,6 +57,29 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
     let mut select = cqn::SELECT::from(&entity_name);
     for key_val in parsed.key_vals {
         select.filter(vec![&key_val.key, "=", &key_val.val]);
+    }
+
+    let query_segs: Vec<&str> = match query {
+        Some(query_seq) => query_seq.split("&").collect(),
+        None => vec![]
+    };
+
+    for query_seg in query_segs {
+        let param_val: Vec<&str> = query_seg.split("=").collect();
+        let param = param_val.first();
+        let val = param_val.last();
+
+        match param {
+            Some(&"$select") => {
+                match val {
+                    Some(vals) => {
+                        select.columns(vals.split(",").collect());
+                    },
+                    _ => {}
+                } 
+            },
+            _ => {}
+        }
     }
     Ok(select)
 }

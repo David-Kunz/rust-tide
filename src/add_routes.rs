@@ -10,8 +10,8 @@ use tide::{Server, StatusCode};
 #[derive(sqlx::FromRow, Debug, Serialize)]
 struct MyEntity {
     ID: String,
-    name: String,
-    age: i64,
+    name: Option<String>,
+    age: Option<i64>,
 }
 
 pub fn add_routes(app: &mut Server<State>, service_names: Vec<String>) -> () {
