@@ -21,7 +21,6 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
     let path = uri.path();
     let query = uri.query();
 
-
     let path_segments: Vec<&str> = path.split('/').collect();
 
     let service_name = path_segments[1];
@@ -53,7 +52,7 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
             key_vals: vec![],
         },
     };
-    let entity_name = format!("{}_{}", service_name, parsed.name);
+    let entity_name = format!("{}.{}", service_name, parsed.name);
     let mut select = cqn::SELECT::from(&entity_name);
     for key_val in parsed.key_vals {
         select.filter(vec![&key_val.key, "=", &key_val.val]);
@@ -61,7 +60,7 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
 
     let query_segs: Vec<&str> = match query {
         Some(query_seq) => query_seq.split("&").collect(),
-        None => vec![]
+        None => vec![],
     };
 
     for query_seg in query_segs {
@@ -70,17 +69,16 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
         let val = param_val.last();
 
         match param {
-            Some(&"$select") => {
-                match val {
-                    Some(vals) => {
-                        select.columns(vals.split(",").collect());
-                    },
-                    _ => {}
-                } 
+            Some(&"$select") => match val {
+                Some(vals) => {
+                    select.columns(vals.split(",").collect());
+                }
+                _ => {}
             },
             _ => {}
         }
     }
+    println!("Got select: {:?}", &select);
     Ok(select)
 }
 

@@ -10,7 +10,9 @@ use tide::{Server, StatusCode};
 #[derive(sqlx::FromRow, Debug, Serialize)]
 struct MyEntity {
     ID: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     age: Option<i64>,
 }
 
@@ -32,7 +34,8 @@ pub fn add_routes(app: &mut Server<State>, service_names: Vec<String>) -> () {
 
                 match url_to_cqn::parse(method, uri) {
                     Ok(cqn) => match cqn {
-                        cqn::CQN::SELECT(select) => {
+                        cqn::CQN::SELECT(mut select) => {
+                            select.crunch(&state.definitions);
                             let res = sqlx::query_as::<_, MyEntity>(&select.to_sql())
                                 .fetch_all(&state.pool)
                                 .await?;

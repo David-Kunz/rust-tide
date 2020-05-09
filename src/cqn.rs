@@ -1,3 +1,5 @@
+use crate::csn;
+
 #[derive(Debug)]
 pub enum CQN {
     SELECT(SELECT),
@@ -35,6 +37,33 @@ impl SELECT {
         }
         self
     }
+
+    pub fn crunch(&mut self, definitions: &csn::Definitions) -> &mut Self {
+        let definition = definitions.definitions.iter().find(|&d| match d {
+            csn::Definition::Entity(entity) => entity.name == self.from,
+            _ => false,
+        });
+
+        if let Some(csn::Definition::Entity(entity)) = definition {
+            for column in self.columns.iter() {
+                println!("checking column {}...", column);
+                if let None = entity.elements.iter().find(|&e| &e.name == column) {
+                    println!("Did not find column {}", column);
+                }
+            }
+
+            // Workaround for SQLx not being able to have a subset of columns
+            for element in entity.elements.iter() {
+                if self.columns.len() != 0 {
+                    println!("checking if element in columns {}...", element.name);
+                    if let None = self.columns.iter().find(|&c| c == &element.name) {
+                        self.columns.push(format!("null as {}", element.name));
+                    }
+                }
+            }
+        }
+        self
+    }
 }
 
 pub trait SQL {
@@ -43,9 +72,10 @@ pub trait SQL {
 
 impl SQL for SELECT {
     fn to_sql(&self) -> String {
+        let from_sql = &self.from.to_string().replace(".", "_");
         let mut res = match &self.columns.len() > &0 {
-            true => format!("SELECT {} FROM {}", &self.columns.join(","), &self.from),
-            false => format!("SELECT * FROM {}", &self.from),
+            true => format!("SELECT {} FROM {}", &self.columns.join(","), &from_sql),
+            false => format!("SELECT * FROM {}", &from_sql),
         };
         if &self.filter.len() > &0 {
             res = format!("{}{}", res, format!(" WHERE {}", &self.filter.join(" ")));
