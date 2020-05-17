@@ -1,9 +1,8 @@
-use crate::cqn;
-use crate::cqn::SQL;
+use crate::cqn::Crunch;
+use crate::cqn_to_result;
 use crate::url_to_cqn;
 use crate::State;
 use serde::Serialize;
-use sqlx::sqlite::SqliteQueryAs;
 use tide::{Server, StatusCode};
 
 // TODO: Should be generated from CSN
@@ -33,17 +32,11 @@ pub fn add_routes(app: &mut Server<State>, service_names: Vec<String>) -> () {
                 let state = req.state();
 
                 match url_to_cqn::parse(method, uri) {
-                    Ok(cqn) => match cqn {
-                        cqn::CQN::SELECT(mut select) => {
-                            select.crunch(&state.definitions);
-                            let res = sqlx::query_as::<_, MyEntity>(&select.to_sql())
-                                .fetch_all(&state.pool)
-                                .await?;
-                            return Ok(tide::Response::new(StatusCode::Ok)
-                                .body_json(&res)
-                                .unwrap());
-                        }
-                    },
+                    Ok(mut cqn) => {
+                        cqn.crunch(&state.definitions);
+                        let res = cqn_to_result::cqn_to_result(&cqn, &state.pool).await?;
+                        return Ok(tide::Response::new(StatusCode::Ok).body_json(&res).unwrap());
+                    }
                     Err(url_to_cqn::UriError::InvalidURI) => {
                         Ok(tide::Response::new(StatusCode::BadRequest)
                             .body_string("Bad request".to_string()))

@@ -37,27 +37,33 @@ impl SELECT {
         }
         self
     }
+}
 
-    pub fn crunch(&mut self, definitions: &csn::Definitions) -> &mut Self {
-        let definition = definitions.definitions.iter().find(|&d| match d {
-            csn::Definition::Entity(entity) => entity.name == self.from,
-            _ => false,
-        });
+pub trait Crunch {
+    fn crunch(&mut self, definitions: &csn::Definitions) -> &mut Self;
+}
 
-        if let Some(csn::Definition::Entity(entity)) = definition {
-            for column in self.columns.iter() {
-                println!("checking column {}...", column);
-                if let None = entity.elements.iter().find(|&e| &e.name == column) {
-                    println!("Did not find column {}", column);
-                }
-            }
+impl Crunch for CQN {
+    fn crunch(&mut self, definitions: &csn::Definitions) -> &mut Self {
+        match self {
+            CQN::SELECT(select) => {
+                let definition = definitions.definitions.iter().find(|&d| match d {
+                    csn::Definition::Entity(entity) => entity.name == select.from,
+                    _ => false,
+                });
 
-            // Workaround for SQLx not being able to have a subset of columns
-            for element in entity.elements.iter() {
-                if self.columns.len() != 0 {
-                    println!("checking if element in columns {}...", element.name);
-                    if let None = self.columns.iter().find(|&c| c == &element.name) {
-                        self.columns.push(format!("null as {}", element.name));
+                if let Some(csn::Definition::Entity(entity)) = definition {
+                    for column in select.columns.iter() {
+                        println!("checking column {}...", column);
+                        if let None = entity.elements.iter().find(|&e| &e.name == column) {
+                            println!("Did not find column {}", column);
+                        }
+                    }
+
+                    // Workaround: Always set all columns if none are given
+                    if select.columns.len() == 0 {
+                        let all_cols = entity.elements.iter().map(|e| e.name.as_str()).collect();
+                        select.columns(all_cols);
                     }
                 }
             }

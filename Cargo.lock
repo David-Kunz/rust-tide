@@ -608,6 +608,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "maplit"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e2e65a1a2e43cfcb47a895c4c8b10d1f4a61097f9f254f183aee60cad9c651d"
+
+[[package]]
 name = "matches"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -949,6 +955,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sqlx",
+ "sqlx-core",
  "tide",
 ]
 
@@ -1059,6 +1066,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "05720e22615919e4734f6a99ceae50d00226c3c5aca406e102ebc33298214e0a"
 
 [[package]]
+name = "sqlformat"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5ce64a4576e1720a2e511bf3ccdb8c0f6cfed0fc265bcbaa0bd369485e02c631"
+dependencies = [
+ "lazy_static",
+ "maplit",
+ "regex",
+]
+
+[[package]]
 name = "sqlx"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1070,9 +1088,9 @@ dependencies = [
 
 [[package]]
 name = "sqlx-core"
-version = "0.3.4"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "673fb6f30bdc14b7812a5ae22d7cc1e8e3d1debd5384eedbdf745827e9721cf3"
+checksum = "88ac5a436f941c42eac509471a730df5c3c58e1450e68cd39afedbd948206273"
 dependencies = [
  "async-native-tls",
  "async-std",
@@ -1090,6 +1108,9 @@ dependencies = [
  "log",
  "memchr",
  "percent-encoding 2.1.0",
+ "serde",
+ "serde_json",
+ "sqlformat",
  "url 2.1.1",
 ]
 
@@ -1104,6 +1125,7 @@ dependencies = [
  "futures",
  "proc-macro2",
  "quote",
+ "serde_json",
  "sqlx-core",
  "syn",
  "url 2.1.1",

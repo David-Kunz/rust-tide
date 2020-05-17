@@ -8,6 +8,7 @@ use std::env;
 
 mod add_routes;
 mod cqn;
+mod cqn_to_result;
 mod csn;
 mod url_to_cqn;
 
@@ -21,9 +22,11 @@ fn main() -> io::Result<()> {
         let csn = read_to_string("csn.json").await?;
         let definitions = csn::Definitions::from_str(&csn).expect("Cannot parse csn");
         let service_names = definitions.get_service_names();
-        let pool = SqlitePool::new(&env::var("DATABASE_URL").unwrap())
-            .await
-            .unwrap();
+        let pool = SqlitePool::new(
+            &env::var("DATABASE_URL").expect("Please set env variable DATABASE_URL"),
+        )
+        .await
+        .unwrap();
         let state = State { definitions, pool };
         let mut app = Server::with_state(state);
         add_routes::add_routes(&mut app, service_names);

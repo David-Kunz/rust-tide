@@ -78,11 +78,12 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
             Some(&"$filter") => match val {
                 Some(vals) => {
                     println!("vals {:?}", vals);
-                    let cleaned_vals = vals.replace("eq", "=")
-                    .replace("%20gt%20","%20>%20")
-                    .replace("%20lt%20","%20<%20")
-                    .replace("%20gte%20","%20>=%20")
-                    .replace("%20lte%20","%20<=%20");
+                    let cleaned_vals = vals
+                        .replace("eq", "=")
+                        .replace("%20gt%20", "%20>%20")
+                        .replace("%20lt%20", "%20<%20")
+                        .replace("%20gte%20", "%20>=%20")
+                        .replace("%20lte%20", "%20<=%20");
                     let vec_vals = cleaned_vals.split("%20").collect();
                     select.filter(vec_vals);
                 }
