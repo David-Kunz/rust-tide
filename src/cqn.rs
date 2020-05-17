@@ -54,7 +54,6 @@ impl Crunch for CQN {
 
                 if let Some(csn::Definition::Entity(entity)) = definition {
                     for column in select.columns.iter() {
-                        println!("checking column {}...", column);
                         if let None = entity.elements.iter().find(|&e| &e.name == column) {
                             println!("Did not find column {}", column);
                         }

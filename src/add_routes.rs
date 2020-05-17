@@ -2,18 +2,7 @@ use crate::cqn::Crunch;
 use crate::cqn_to_result;
 use crate::url_to_cqn;
 use crate::State;
-use serde::Serialize;
 use tide::{Server, StatusCode};
-
-// TODO: Should be generated from CSN
-#[derive(sqlx::FromRow, Debug, Serialize)]
-struct MyEntity {
-    ID: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    age: Option<i64>,
-}
 
 pub fn add_routes(app: &mut Server<State>, service_names: Vec<String>) -> () {
     app.at("/").get(|_req: tide::Request<State>| async move {

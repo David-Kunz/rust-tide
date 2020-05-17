@@ -77,7 +77,6 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
             },
             Some(&"$filter") => match val {
                 Some(vals) => {
-                    println!("vals {:?}", vals);
                     let cleaned_vals = vals
                         .replace("eq", "=")
                         .replace("%20gt%20", "%20>%20")
@@ -92,7 +91,6 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
             _ => {}
         }
     }
-    println!("Got select: {:?}", &select);
     Ok(select)
 }
 
