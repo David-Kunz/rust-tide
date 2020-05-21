@@ -14,8 +14,9 @@ pub async fn cqn_to_result(cqn: &cqn::CQN, pool: &sqlx::SqlitePool) -> Result<Ve
             while let Some(row) = cursor.next().await? {
                 let mut map = Map::new();
                 for col in &select.columns {
-                    let val: &str = row.get(col.as_str());
-                    map.insert(col.to_string(), Value::String(val.to_string()));
+                    let key = col.reference.join(".");
+                    let val: &str = row.get(key.as_str());
+                    map.insert(key.to_string(), Value::String(val.to_string()));
                 }
                 let obj = Value::Object(map);
                 res.push(obj);

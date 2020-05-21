@@ -3,12 +3,36 @@ use crate::csn;
 #[derive(Debug)]
 pub enum CQN {
     SELECT(SELECT),
+    INSERT(INSERT),
 }
 #[derive(Debug)]
 pub struct SELECT {
     pub from: String,
-    pub columns: Vec<String>,
+    pub columns: Vec<Column>,
     pub filter: Vec<String>,
+}
+
+#[derive(Debug)]
+pub struct INSERT {
+    pub into: String,
+    pub data: Vec<Entry>,
+    pub filter: Vec<String>,
+}
+
+#[derive(Debug)]
+pub struct Entry {
+    pub key_val: Vec<KeyVal>,
+}
+
+#[derive(Debug)]
+pub struct KeyVal {
+    pub key: Column,
+    pub val: String,
+}
+
+#[derive(Debug)]
+pub struct Column {
+    pub reference: Vec<String>
 }
 
 impl SELECT {
@@ -20,7 +44,7 @@ impl SELECT {
         }
     }
     pub fn columns(&mut self, columns: Vec<&str>) -> &mut Self {
-        let cols: Vec<String> = columns.iter().map(|col| col.to_string()).collect();
+        let cols: Vec<Column> = columns.iter().map(|col| Column { reference: vec![col.to_string()] }).collect();
         self.columns.extend(cols);
         self
     }
@@ -54,8 +78,8 @@ impl Crunch for CQN {
 
                 if let Some(csn::Definition::Entity(entity)) = definition {
                     for column in select.columns.iter() {
-                        if let None = entity.elements.iter().find(|&e| &e.name == column) {
-                            println!("Did not find column {}", column);
+                        if let None = entity.elements.iter().find(|&e| &e.name == column.reference.last().unwrap()) {
+                            println!("Did not find column {}", column.reference.join("."));
                         }
                     }
 
@@ -79,7 +103,10 @@ impl SQL for SELECT {
     fn to_sql(&self) -> String {
         let from_sql = &self.from.to_string().replace(".", "_");
         let mut res = match &self.columns.len() > &0 {
-            true => format!("SELECT {} FROM {}", &self.columns.join(","), &from_sql),
+            true => {
+                let cols: Vec<String> = self.columns.iter().map(|c| { c.reference.join(".").to_string() }).collect();
+                format!("SELECT {} FROM {}", cols.join(","), &from_sql)
+            },
             false => format!("SELECT * FROM {}", &from_sql),
         };
         if &self.filter.len() > &0 {
