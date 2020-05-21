@@ -23,6 +23,9 @@ pub async fn cqn_to_result(cqn: &cqn::CQN, pool: &sqlx::SqlitePool) -> Result<Ve
             }
             Ok(res)
         }
-        _ => unimplemented!(),
+        cqn::CQN::INSERT(insert) => {
+            let sql = &insert.to_sql();
+            unimplemented!();
+        }
     }
 }

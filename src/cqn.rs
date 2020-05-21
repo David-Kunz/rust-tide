@@ -107,6 +107,14 @@ impl SQL for SELECT {
     }
 }
 
+impl SQL for INSERT {
+    fn to_sql(&self) -> String {
+        let into_sql = &self.into.to_string().replace(".", "_");
+        let res = format!("INSERT INTO {}", &into_sql);
+        res
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

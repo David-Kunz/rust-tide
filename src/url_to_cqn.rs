@@ -116,10 +116,10 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
     Ok(select)
 }
 
-pub async fn parse(method: Method, uri: &Url, body: Value) -> Result<CQN, UriError> {
+pub fn parse(method: Method, uri: &Url, body: Option<Value>) -> Result<CQN, UriError> {
     match method {
         tide::http::Method::Get => Ok(cqn::CQN::SELECT(get(uri)?)),
-        tide::http::Method::Post => Ok(cqn::CQN::INSERT(post(uri, &body)?)),
+        tide::http::Method::Post => Ok(cqn::CQN::INSERT(post(uri, &body.unwrap())?)),
         _ => Err(UriError::NotImplemented),
     }
 }
