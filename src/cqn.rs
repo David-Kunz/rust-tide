@@ -1,9 +1,10 @@
 use crate::csn;
+use serde_json::Value;
 
 #[derive(Debug)]
 pub enum CQN {
     SELECT(SELECT),
-    // INSERT(INSERT),
+    INSERT(INSERT),
 }
 #[derive(Debug)]
 pub struct SELECT {
@@ -12,23 +13,12 @@ pub struct SELECT {
     pub filter: Vec<String>,
 }
 
-// #[derive(Debug)]
-// pub struct INSERT {
-//     pub into: String,
-//     pub data: Vec<Entry>,
-//     pub filter: Vec<String>,
-// }
-
-// #[derive(Debug)]
-// pub struct Entry {
-//     pub key_val: Vec<KeyVal>,
-// }
-
-// #[derive(Debug)]
-// pub struct KeyVal {
-//     pub key: Column,
-//     pub val: String,
-// }
+#[derive(Debug)]
+pub struct INSERT {
+    pub into: String,
+    pub data: Value,
+    pub filter: Vec<String>,
+}
 
 #[derive(Debug)]
 pub struct Column {
@@ -89,7 +79,8 @@ impl Crunch for CQN {
                         select.columns(all_cols);
                     }
                 }
-            }
+            },
+            _ => { }
         }
         self
     }

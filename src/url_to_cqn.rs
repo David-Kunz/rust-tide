@@ -1,6 +1,8 @@
 use crate::cqn;
 use crate::cqn::CQN;
 use tide;
+use tide::http::{Method, Url};
+use serde_json::Value;
 
 struct Parsed {
     name: String,
@@ -17,7 +19,7 @@ pub enum UriError {
     NotImplemented,
 }
 
-fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
+fn parse_path(uri: &tide::http::Url) -> Result<Parsed, UriError> {
     let path = uri.path();
     let query = uri.query();
 
@@ -26,7 +28,7 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
     let service_name = path_segments[1];
     let entity_segment = path_segments[2];
 
-    let parsed: Parsed = match entity_segment.find("(") {
+    return match entity_segment.find("(") {
         Some(start_idx) => {
             let mut parsed = Parsed {
                 name: entity_segment[..start_idx].to_string(),
@@ -42,16 +44,36 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
                             val: keyval[1].to_string(),
                         });
                     }
-                    parsed
+                    Ok(parsed)
                 }
                 None => return Err(UriError::InvalidURI),
             }
         }
-        None => Parsed {
+        None => Ok(Parsed {
             name: entity_segment.to_string(),
             key_vals: vec![],
-        },
+        }),
     };
+}
+
+fn post(uri: &tide::http::Url, body: &Value) -> Result<cqn::INSERT, UriError> {
+    let parsed = parse_path(uri)?;
+    Ok(cqn::INSERT {
+        into: parsed.name,
+        data: body.clone(),
+        filter: vec![],
+    })
+}
+
+fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
+    let path = uri.path();
+    let query = uri.query();
+
+    let path_segments: Vec<&str> = path.split('/').collect();
+
+    let service_name = path_segments[1];
+
+    let parsed= parse_path(uri)?;
     let entity_name = format!("{}.{}", service_name, parsed.name);
     let mut select = cqn::SELECT::from(&entity_name);
     for key_val in parsed.key_vals {
@@ -94,9 +116,10 @@ fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
     Ok(select)
 }
 
-pub fn parse(method: tide::http::Method, uri: &tide::http::Url) -> Result<CQN, UriError> {
+pub async fn parse(method: Method, uri: &Url, body: Value) -> Result<CQN, UriError> {
     match method {
         tide::http::Method::Get => Ok(cqn::CQN::SELECT(get(uri)?)),
+        tide::http::Method::Post => Ok(cqn::CQN::INSERT(post(uri, &body)?)),
         _ => Err(UriError::NotImplemented),
     }
 }

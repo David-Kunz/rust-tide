@@ -15,12 +15,13 @@ pub fn add_routes(app: &mut Server<State>, service_names: Vec<String>) -> () {
     for service_name in service_names {
         let endpoint = format!("{}{}", service_name, "/*");
         app.at(&endpoint)
-            .get(|req: tide::Request<State>| async move {
-                let uri = req.uri();
-                let method = req.method();
+            .all(|mut req: tide::Request<State>| async move {
+                let body = req.body_json().await?;
                 let state = req.state();
+                let method = req.method();
+                let uri = req.uri();
 
-                match url_to_cqn::parse(method, uri) {
+                match url_to_cqn::parse(method, uri, body).await {
                     Ok(mut cqn) => {
                         cqn.crunch(&state.definitions);
                         let res = cqn_to_result::cqn_to_result(&cqn, &state.pool).await?;

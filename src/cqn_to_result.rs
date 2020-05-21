@@ -23,5 +23,6 @@ pub async fn cqn_to_result(cqn: &cqn::CQN, pool: &sqlx::SqlitePool) -> Result<Ve
             }
             Ok(res)
         }
+        _ => unimplemented!(),
     }
 }
