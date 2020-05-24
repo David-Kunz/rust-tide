@@ -78,7 +78,6 @@ impl Crunch for CQN {
                             .iter()
                             .find(|&e| &e.name == column.reference.last().unwrap())
                         {
-                            println!("Did not find column {}", column.reference.join("."));
                         }
                     }
 

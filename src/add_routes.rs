@@ -26,7 +26,6 @@ pub fn add_routes(app: &mut Server<State>, service_names: Vec<String>) -> () {
 
                 match url_to_cqn::parse(method, uri, option_body) {
                     Ok(mut cqn) => {
-                        println!("found CQN: {:#?}", cqn);
                         cqn.crunch(&state.definitions);
                         let res = cqn_to_result::cqn_to_result(&cqn, &state.pool).await?;
                         return Ok(tide::Response::new(StatusCode::Ok).body_json(&res).unwrap());

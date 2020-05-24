@@ -25,9 +25,7 @@ pub async fn cqn_to_result(cqn: &cqn::CQN, pool: &sqlx::SqlitePool) -> Result<Ve
         }
         cqn::CQN::INSERT(insert) => {
             let sql = &insert.to_sql();
-            println!("sql: {}", sql);
-            let res = sqlx::query(sql).execute(pool).await?;
-            println!("executed, res = {}", res);
+            sqlx::query(sql).execute(pool).await?;
             Ok(vec![insert.data.clone()])
         }
     }
