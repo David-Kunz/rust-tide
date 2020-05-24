@@ -98,12 +98,11 @@ impl Crunch for CQN {
                     match &entity.query {
                         Some(query) => {
                             insert.into = query.from.to_string();
-                        },
+                        }
                         None => {}
                     }
                 }
-            },
-            _ => {}
+            }
         }
         self
     }

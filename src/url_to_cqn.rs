@@ -26,7 +26,6 @@ fn parse_path(uri: &tide::http::Url) -> Result<Parsed, UriError> {
     let service_name = path_segments[1];
     let entity_segment = path_segments[2];
 
-    println!("parsing...:");
     return match entity_segment.find("(") {
         Some(start_idx) => {
             let entity_name = format!(
@@ -34,7 +33,6 @@ fn parse_path(uri: &tide::http::Url) -> Result<Parsed, UriError> {
                 service_name,
                 entity_segment[..start_idx].to_string()
             );
-            println!("entity_name: {}", entity_name);
             let mut parsed = Parsed {
                 name: entity_name,
                 key_vals: vec![],
