@@ -1,8 +1,8 @@
 use crate::cqn;
 use crate::cqn::CQN;
+use serde_json::Value;
 use tide;
 use tide::http::{Method, Url};
-use serde_json::Value;
 
 struct Parsed {
     name: String,
@@ -21,17 +21,22 @@ pub enum UriError {
 
 fn parse_path(uri: &tide::http::Url) -> Result<Parsed, UriError> {
     let path = uri.path();
-    let query = uri.query();
-
     let path_segments: Vec<&str> = path.split('/').collect();
 
     let service_name = path_segments[1];
     let entity_segment = path_segments[2];
 
+    println!("parsing...:");
     return match entity_segment.find("(") {
         Some(start_idx) => {
+            let entity_name = format!(
+                "{}.{}",
+                service_name,
+                entity_segment[..start_idx].to_string()
+            );
+            println!("entity_name: {}", entity_name);
             let mut parsed = Parsed {
-                name: entity_segment[..start_idx].to_string(),
+                name: entity_name,
                 key_vals: vec![],
             };
             match entity_segment.find(")") {
@@ -49,10 +54,13 @@ fn parse_path(uri: &tide::http::Url) -> Result<Parsed, UriError> {
                 None => return Err(UriError::InvalidURI),
             }
         }
-        None => Ok(Parsed {
-            name: entity_segment.to_string(),
-            key_vals: vec![],
-        }),
+        None => {
+            let entity_name = format!("{}.{}", service_name, entity_segment.to_string());
+            Ok(Parsed {
+                name: entity_name,
+                key_vals: vec![],
+            })
+        }
     };
 }
 
@@ -66,16 +74,10 @@ fn post(uri: &tide::http::Url, body: &Value) -> Result<cqn::INSERT, UriError> {
 }
 
 fn get(uri: &tide::http::Url) -> Result<cqn::SELECT, UriError> {
-    let path = uri.path();
     let query = uri.query();
 
-    let path_segments: Vec<&str> = path.split('/').collect();
-
-    let service_name = path_segments[1];
-
-    let parsed= parse_path(uri)?;
-    let entity_name = format!("{}.{}", service_name, parsed.name);
-    let mut select = cqn::SELECT::from(&entity_name);
+    let parsed = parse_path(uri)?;
+    let mut select = cqn::SELECT::from(&parsed.name);
     for key_val in parsed.key_vals {
         select.filter(vec![&key_val.key, "=", &key_val.val]);
     }

@@ -22,7 +22,7 @@ pub struct INSERT {
 
 #[derive(Debug)]
 pub struct Column {
-    pub reference: Vec<String>
+    pub reference: Vec<String>,
 }
 
 impl SELECT {
@@ -34,7 +34,12 @@ impl SELECT {
         }
     }
     pub fn columns(&mut self, columns: Vec<&str>) -> &mut Self {
-        let cols: Vec<Column> = columns.iter().map(|col| Column { reference: vec![col.to_string()] }).collect();
+        let cols: Vec<Column> = columns
+            .iter()
+            .map(|col| Column {
+                reference: vec![col.to_string()],
+            })
+            .collect();
         self.columns.extend(cols);
         self
     }
@@ -68,7 +73,11 @@ impl Crunch for CQN {
 
                 if let Some(csn::Definition::Entity(entity)) = definition {
                     for column in select.columns.iter() {
-                        if let None = entity.elements.iter().find(|&e| &e.name == column.reference.last().unwrap()) {
+                        if let None = entity
+                            .elements
+                            .iter()
+                            .find(|&e| &e.name == column.reference.last().unwrap())
+                        {
                             println!("Did not find column {}", column.reference.join("."));
                         }
                     }
@@ -79,8 +88,22 @@ impl Crunch for CQN {
                         select.columns(all_cols);
                     }
                 }
+            }
+            CQN::INSERT(insert) => {
+                let definition = definitions.definitions.iter().find(|&d| match d {
+                    csn::Definition::Entity(entity) => entity.name == insert.into,
+                    _ => false,
+                });
+                if let Some(csn::Definition::Entity(entity)) = definition {
+                    match &entity.query {
+                        Some(query) => {
+                            insert.into = query.from.to_string();
+                        },
+                        None => {}
+                    }
+                }
             },
-            _ => { }
+            _ => {}
         }
         self
     }
@@ -95,9 +118,13 @@ impl SQL for SELECT {
         let from_sql = &self.from.to_string().replace(".", "_");
         let mut res = match &self.columns.len() > &0 {
             true => {
-                let cols: Vec<String> = self.columns.iter().map(|c| { c.reference.join(".").to_string() }).collect();
+                let cols: Vec<String> = self
+                    .columns
+                    .iter()
+                    .map(|c| c.reference.join(".").to_string())
+                    .collect();
                 format!("SELECT {} FROM {}", cols.join(","), &from_sql)
-            },
+            }
             false => format!("SELECT * FROM {}", &from_sql),
         };
         if &self.filter.len() > &0 {
@@ -110,7 +137,22 @@ impl SQL for SELECT {
 impl SQL for INSERT {
     fn to_sql(&self) -> String {
         let into_sql = &self.into.to_string().replace(".", "_");
-        let res = format!("INSERT INTO {}", &into_sql);
+        let mut values_sql: String = "(".to_string();
+        let mut cols_sql: String = "(".to_string();
+        for key_val in self.data.as_object().unwrap() {
+            cols_sql = format!("{}{},", cols_sql, key_val.0);
+            values_sql = format!("{}'{}',", values_sql, key_val.1);
+        }
+        cols_sql.pop();
+        cols_sql = format!("{}{}", cols_sql, ")");
+        values_sql.pop();
+        values_sql = format!("{}{}", values_sql, ")");
+        values_sql = values_sql.replace("\"", "");
+        // let values_sql = &self.data.to_string();
+        let res = format!(
+            "INSERT INTO {} {} VALUES {}",
+            &into_sql, &cols_sql, &values_sql
+        );
         res
     }
 }

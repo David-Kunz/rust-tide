@@ -27,7 +27,13 @@ pub struct Service {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Entity {
     pub name: String,
+    pub query: Option<Query>,
     pub elements: Vec<Element>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Query {
+    pub from: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -120,9 +126,24 @@ impl Definitions {
                     };
                     elements.push(element);
                 }
+                let query_obj = val["query"].as_object();
+                let query: Option<Query> = match query_obj {
+                    Some(val_query) => {
+                        // TODO: REF
+                        let vals = val_query["SELECT"]["from"]["ref"].as_array().unwrap();
+                        let mut joined: String = "".to_string();
+                        for val in vals {
+                            joined = format!("{}{}.", joined, val.to_string().replace("\"", ""));
+                        }
+                        joined.pop();
+                        Some(Query { from: joined })
+                    }
+                    None => None,
+                };
                 definitions.push(Definition::Entity(Entity {
                     name: key.clone(),
                     elements: elements,
+                    query,
                 }))
             }
         }
@@ -143,6 +164,15 @@ mod tests {
             },
             "TestService.TestEntity": {
               "kind": "entity",
+              "query": {
+                "SELECT": {
+                  "from": {
+                    "ref": [
+                      "TestDbEntity"
+                    ]
+                  }
+                }
+              },
               "elements": {
                 "ID": {
                   "key": true,

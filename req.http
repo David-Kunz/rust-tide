@@ -1,20 +1,11 @@
-POST http://localhost:4004/my/MySEntity
-Content-Type: application/json
-
-{
-    "ID": "f3943c14-7440-4f2f-bfb0-1aa93f7accbd",
-    "name": "First Entity",
-    "age": 9
-}
-
-
-###
-
 POST http://127.0.0.1:8080/MyService/MySEntity
 Content-Type: application/json
 
 {
-    "ID": "g3943c14-7440-4f2f-bfb0-1aa93f7accbd",
+    "ID": "d3943c14-7440-4f2f-bfb0-1aa93f7accbd",
     "name": "First Entity",
     "age": 9
 }
+
+###
+GET http://127.0.0.1:8080/MyService/MySEntity?$filter=age gte 8
