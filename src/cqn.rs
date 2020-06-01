@@ -23,12 +23,13 @@ pub struct INSERT {
 #[derive(Debug)]
 pub struct Identifier {
     pub reference: Vec<String>,
+    pub alias: Option<String>
 }
 
 impl SELECT {
     pub fn from(entity: &str) -> SELECT {
         SELECT {
-            entity: Identifier { reference: vec![entity.to_string()] },
+            entity: Identifier { reference: vec![entity.to_string()], alias: None },
             columns: vec![],
             filter: vec![],
         }
@@ -38,6 +39,7 @@ impl SELECT {
             .iter()
             .map(|col| Identifier {
                 reference: vec![col.to_string()],
+                alias: None
             })
             .collect();
         self.columns.extend(cols);
