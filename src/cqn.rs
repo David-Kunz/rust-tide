@@ -8,7 +8,7 @@ pub enum CQN {
 }
 #[derive(Debug)]
 pub struct SELECT {
-    pub entity: String,
+    pub entity: Identifier,
     pub columns: Vec<Identifier>,
     pub filter: Vec<String>,
 }
@@ -28,7 +28,7 @@ pub struct Identifier {
 impl SELECT {
     pub fn from(entity: &str) -> SELECT {
         SELECT {
-            entity: entity.to_string(),
+            entity: Identifier { reference: vec![entity.to_string()] },
             columns: vec![],
             filter: vec![],
         }
@@ -67,7 +67,7 @@ impl Crunch for CQN {
         match self {
             CQN::SELECT(select) => {
                 let definition = definitions.definitions.iter().find(|&d| match d {
-                    csn::Definition::Entity(entity) => entity.name == select.entity,
+                    csn::Definition::Entity(entity) => entity.name == *select.entity.reference.last().unwrap(),
                     _ => false,
                 });
 
@@ -113,7 +113,7 @@ pub trait SQL {
 
 impl SQL for SELECT {
     fn to_sql(&self) -> String {
-        let from_sql = &self.entity.to_string().replace(".", "_");
+        let from_sql = &self.entity.reference.join(".").to_string().replace(".", "_");
         let mut res = match &self.columns.len() > &0 {
             true => {
                 let cols: Vec<String> = self
