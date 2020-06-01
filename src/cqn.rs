@@ -9,7 +9,7 @@ pub enum CQN {
 #[derive(Debug)]
 pub struct SELECT {
     pub entity: String,
-    pub columns: Vec<Column>,
+    pub columns: Vec<Identifier>,
     pub filter: Vec<String>,
 }
 
@@ -21,7 +21,7 @@ pub struct INSERT {
 }
 
 #[derive(Debug)]
-pub struct Column {
+pub struct Identifier {
     pub reference: Vec<String>,
 }
 
@@ -34,9 +34,9 @@ impl SELECT {
         }
     }
     pub fn columns(&mut self, columns: Vec<&str>) -> &mut Self {
-        let cols: Vec<Column> = columns
+        let cols: Vec<Identifier> = columns
             .iter()
-            .map(|col| Column {
+            .map(|col| Identifier {
                 reference: vec![col.to_string()],
             })
             .collect();
