@@ -65,7 +65,7 @@ fn parse_path(uri: &tide::http::Url) -> Result<Parsed, UriError> {
 fn post(uri: &tide::http::Url, body: &Value) -> Result<cqn::INSERT, UriError> {
     let parsed = parse_path(uri)?;
     Ok(cqn::INSERT {
-        into: parsed.name,
+        entity: parsed.name,
         data: body.clone(),
         filter: vec![],
     })

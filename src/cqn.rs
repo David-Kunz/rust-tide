@@ -8,14 +8,14 @@ pub enum CQN {
 }
 #[derive(Debug)]
 pub struct SELECT {
-    pub from: String,
+    pub entity: String,
     pub columns: Vec<Column>,
     pub filter: Vec<String>,
 }
 
 #[derive(Debug)]
 pub struct INSERT {
-    pub into: String,
+    pub entity: String,
     pub data: Value,
     pub filter: Vec<String>,
 }
@@ -28,7 +28,7 @@ pub struct Column {
 impl SELECT {
     pub fn from(entity: &str) -> SELECT {
         SELECT {
-            from: entity.to_string(),
+            entity: entity.to_string(),
             columns: vec![],
             filter: vec![],
         }
@@ -67,7 +67,7 @@ impl Crunch for CQN {
         match self {
             CQN::SELECT(select) => {
                 let definition = definitions.definitions.iter().find(|&d| match d {
-                    csn::Definition::Entity(entity) => entity.name == select.from,
+                    csn::Definition::Entity(entity) => entity.name == select.entity,
                     _ => false,
                 });
 
@@ -90,13 +90,13 @@ impl Crunch for CQN {
             }
             CQN::INSERT(insert) => {
                 let definition = definitions.definitions.iter().find(|&d| match d {
-                    csn::Definition::Entity(entity) => entity.name == insert.into,
+                    csn::Definition::Entity(entity) => entity.name == insert.entity,
                     _ => false,
                 });
                 if let Some(csn::Definition::Entity(entity)) = definition {
                     match &entity.query {
                         Some(query) => {
-                            insert.into = query.from.to_string();
+                            insert.entity = query.from.to_string();
                         }
                         None => {}
                     }
@@ -113,7 +113,7 @@ pub trait SQL {
 
 impl SQL for SELECT {
     fn to_sql(&self) -> String {
-        let from_sql = &self.from.to_string().replace(".", "_");
+        let from_sql = &self.entity.to_string().replace(".", "_");
         let mut res = match &self.columns.len() > &0 {
             true => {
                 let cols: Vec<String> = self
@@ -134,7 +134,7 @@ impl SQL for SELECT {
 
 impl SQL for INSERT {
     fn to_sql(&self) -> String {
-        let into_sql = &self.into.to_string().replace(".", "_");
+        let into_sql = &self.entity.to_string().replace(".", "_");
         let mut values_sql: String = "(".to_string();
         let mut cols_sql: String = "(".to_string();
         for key_val in self.data.as_object().unwrap() {
