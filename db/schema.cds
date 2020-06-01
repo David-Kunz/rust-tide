@@ -2,4 +2,5 @@
         key ID: UUID;
         name: String;
         age: Integer;
+        isGerman: Boolean;
     }

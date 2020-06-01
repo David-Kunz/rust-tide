@@ -12,6 +12,9 @@
         },
         "age": {
           "type": "cds.Integer"
+        },
+        "isGerman": {
+          "type": "cds.Boolean"
         }
       }
     },
@@ -40,13 +43,16 @@
         },
         "age": {
           "type": "cds.Integer"
+        },
+        "isGerman": {
+          "type": "cds.Boolean"
         }
       },
       "$syntax": "projection"
     }
   },
   "meta": {
-    "creator": "CDS Compiler v1.26.2"
+    "creator": "CDS Compiler v1.27.0"
   },
   "$version": "1.0"
 }
